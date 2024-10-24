@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: research_paper
+  datasource:
+    url: jdbc:postgresql://localhost:5432/research_paper
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
