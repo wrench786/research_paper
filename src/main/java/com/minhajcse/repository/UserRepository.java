@@ -1,9 +1,15 @@
 package com.minhajcse.repository;
 
 import com.minhajcse.model.User;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface UserRepository extends CrudRepository<User, Long> {
+import java.util.List;
+import java.util.Optional;
+
+public interface UserRepository {
+    Optional<User> findById(Long id);
+    List<User> findAll();
+    Long save(User user);
+    void update(User user);
+    void deleteById(Long id);
+    boolean existsById(Long id);
 }

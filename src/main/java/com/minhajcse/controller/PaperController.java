@@ -1,6 +1,7 @@
 package com.minhajcse.controller;
 
 import com.minhajcse.dto.PaperDTO;
+import com.minhajcse.exception.PaperNotFoundException;
 import com.minhajcse.model.Paper;
 import com.minhajcse.repository.PaperAndAuthorRepository;
 import com.minhajcse.service.PaperAndAuthorService;
@@ -22,19 +23,15 @@ public class PaperController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Paper> getPaper(@PathVariable Long id) {
+    public ResponseEntity<Paper> getPaper(@PathVariable Long id) throws PaperNotFoundException {
         Paper paper = paperService.getPaperById(id);
-        if (paper != null) {
-            return ResponseEntity.ok(paper);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(paper);
     }
 
     @PostMapping("/create")
     public ResponseEntity<Paper> createPaper(@RequestBody PaperDTO paperDTO) {
         Paper paper = paperDTO.getPaper();
-        Paper createdPaper = paperService.createPaper(paper);
+        paperService.createPaper(paper);
 
         List<Long> authorList = paperDTO.getAuthorList();
         for(Long authorId: authorList){
@@ -45,20 +42,31 @@ public class PaperController {
                 e.printStackTrace();
             }
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPaper);
+        return ResponseEntity.status(HttpStatus.CREATED).body(paper);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Paper> updatePaper(@PathVariable Long id, @RequestBody Paper paper) {
-        paper.setPaperId(id);
-        Paper updatedPaper = paperService.updatePaper(paper);
-        return ResponseEntity.ok(updatedPaper);
+    public ResponseEntity<Paper> updatePaper(@RequestBody Paper paper) {
+        boolean flag = paperService.existsById(paper.getPaperId());
+        if(flag){
+            paperService.updatePaper(paper);
+            return ResponseEntity.ok(paper);
+        }
+        else{
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deletePaper(@PathVariable Long id) {
-        paperService.deletePaper(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deletePaper(@PathVariable Long id) {
+        boolean flag = paperService.existsById(id);
+        if(flag){
+            paperService.deletePaper(id);
+            return ResponseEntity.ok("Deleted Paper");
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid Paper Id");
+        }
     }
 
     @GetMapping("/getAll")

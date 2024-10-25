@@ -1,9 +1,15 @@
 package com.minhajcse.repository;
 
 import com.minhajcse.model.Paper;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface PaperRepository extends CrudRepository<Paper, Long> {
+import java.util.List;
+import java.util.Optional;
+
+public interface PaperRepository {
+    Optional<Paper> findById(Long id);
+    List<Paper> findAll();
+    Long save(Paper paper);
+    void deleteById(Long id);
+    void update(Paper paper);
+    boolean existsById(Long id);
 }

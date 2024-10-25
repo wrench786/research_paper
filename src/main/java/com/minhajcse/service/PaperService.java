@@ -1,5 +1,6 @@
 package com.minhajcse.service;
 
+import com.minhajcse.exception.PaperNotFoundException;
 import com.minhajcse.model.Author;
 import com.minhajcse.model.Paper;
 import com.minhajcse.model.PaperAndAuthor;
@@ -23,15 +24,17 @@ public class PaperService {
     }
 
 
-    public Paper getPaperById(Long id) {
-        return paperRepository.findById(id).orElse(null);
+    public Paper getPaperById(Long id) throws PaperNotFoundException {
+        return paperRepository.findById(id).orElseThrow(
+                () -> new PaperNotFoundException("Paper not fournd for id" + id)
+        );
     }
 
     public List<Paper> getAllPapers() {
         return (List<Paper>) paperRepository.findAll();
     }
 
-    public Paper createPaper(Paper paper) {
+    public Long createPaper(Paper paper) {
         return paperRepository.save(paper);
     }
 
@@ -39,9 +42,11 @@ public class PaperService {
         paperRepository.deleteById(id);
     }
 
-    public Paper updatePaper(Paper paper) {
-        return paperRepository.save(paper);
+    public void updatePaper(Paper paper) {
+        paperRepository.update(paper);
     }
 
-
+    public boolean existsById(Long id) {
+        return paperRepository.existsById(id);
+    }
 }

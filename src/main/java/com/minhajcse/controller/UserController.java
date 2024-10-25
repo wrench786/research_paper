@@ -1,5 +1,6 @@
 package com.minhajcse.controller;
 
+import com.minhajcse.exception.UserNotFoundException;
 import com.minhajcse.model.Author;
 import com.minhajcse.model.User;
 import com.minhajcse.service.AuthorService;
@@ -22,28 +23,23 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUser(@PathVariable Long id) {
+    public ResponseEntity<?> getUser(@PathVariable Long id) throws UserNotFoundException {
         User user = userService.getUserById(id);
-        if (user != null) {
-            return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid User Id");
-        }
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/create")
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        User createdUser = userService.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        userService.createUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User user) {
-        User dummyUser = userService.getUserById(id);
-        if(dummyUser != null) {
-            user.setUserId(id);
-            User updatedUser = userService.updateUser(user);
-            return ResponseEntity.ok(updatedUser);
+    @PutMapping("/update")
+    public ResponseEntity<?> updateUser( @RequestBody User user) {
+        Boolean flag = userService.existsUser(user.getUserId());
+        if(flag) {
+            userService.updateUser(user);
+            return ResponseEntity.ok(user);
         }
         else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid User Id");
@@ -53,17 +49,13 @@ public class UserController {
     @DeleteMapping("/delete/{id}")
     @Transactional
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        try {
+        Boolean flag = userService.existsUser(id);
+        if(flag) {
             userService.deleteUser(id);
-            try {
-                authorService.deleteAuthor(id);
-            }
-            catch (Exception ignored) {
-            }
-            return ResponseEntity.status(HttpStatus.OK).body("User and author deleted successfully");
+            return ResponseEntity.ok("Deleted User");
         }
-        catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User of Id Dont Exists");
+        else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid User Id");
         }
     }
 

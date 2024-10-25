@@ -1,10 +1,8 @@
 package com.minhajcse.service;
 
-import com.minhajcse.model.Author;
+import com.minhajcse.exception.UserNotFoundException;
 import com.minhajcse.model.User;
-import com.minhajcse.repository.AuthorRepository;
 import com.minhajcse.repository.UserRepository;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,35 +10,34 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private final AuthorRepository authorRepository;
-    UserService(UserRepository userRepository, AuthorRepository authorRepository) {
+    UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.authorRepository = authorRepository;
     }
 
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElse(null);
+    public User getUserById(Long id) throws UserNotFoundException {
+        return userRepository.findById(id).orElseThrow(
+                () -> new UserNotFoundException("User with id " + id + " not found")
+        );
     }
 
     public List<User> getAllUsers() {
         return (List<User>) userRepository.findAll();
     }
 
-    public User createUser(User user) {
+    public Long createUser(User user) {
         return userRepository.save(user);
     }
 
-
-    public void deleteUser(Long id) throws Exception {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
-        } else {
-            throw new Exception("User with id " + id + " not found");
-        }
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 
-    public User updateUser(User user) {
-        return userRepository.save(user);
+    public void updateUser(User user) {
+        userRepository.update(user);
+    }
+
+    public boolean existsUser(Long id){
+        return userRepository.existsById(id);
     }
 
 }

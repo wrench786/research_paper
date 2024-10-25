@@ -22,47 +22,43 @@ public class PaperAndAuthorService {
         this.paperRepository = paperRepository;
     }
 
-
     public void addAuthorToPaper(Long paperId, Long authorId) throws Exception {
-        Paper paper = paperRepository.findById(paperId).orElse(null);
-        Author author = authorRepository.findById(authorId).orElse(null);
-
-        if(paper != null && author != null) {
-            PaperAndAuthor paperAndAuthor = new PaperAndAuthor();
-            paperAndAuthor.setAuthorId(authorId);
-            paperAndAuthor.setPaperId(paperId);
-
-            paperAndAuthorRepository.save(paperAndAuthor);
-        }
-        else{
-            throw new Exception("Valid Paper and Author not found");
-        }
+        Paper paper = paperRepository.findById(paperId).orElseThrow(
+                () -> new Exception("Paper with id " + paperId + " does not exist")
+        );
+        Author author = authorRepository.findById(authorId).orElseThrow(
+                () -> new Exception("Author with id " + authorId + " does not exist")
+        );
+        PaperAndAuthor paperAndAuthor = new PaperAndAuthor();
+        paperAndAuthor.setAuthorId(authorId);
+        paperAndAuthor.setPaperId(paperId);
+        paperAndAuthorRepository.save(paperAndAuthor);
     }
 
-    public List<Author> getAuthorsForPaper(Long paperId) throws Exception {
-        List<PaperAndAuthor> paperAndAuthors = paperAndAuthorRepository.findAllByPaperId(paperId);
-        List<Author> authors = new ArrayList<>();
-
-        for(PaperAndAuthor paperAndAuthor : paperAndAuthors) {
-            Author author = authorRepository.findById(paperAndAuthor.getAuthorId()).orElse(null);
-            if(author != null) {
-                authors.add(author);
-            }
-            //authors.add(authorRepository.findById(paperAndAuthor.getAuthorId()).orElse(null));
-        }
-        return authors;
-    }
-    public List<Paper> getPapersForAuthor(Long authorId) throws Exception {
-        List<PaperAndAuthor> paperAndAuthors = paperAndAuthorRepository.findAllByAuthorId(authorId);
-        List<Paper> papers = new ArrayList<>();
-
-        for(PaperAndAuthor paperAndAuthor : paperAndAuthors) {
-            Paper paper = paperRepository.findById(paperAndAuthor.getPaperId()).orElse(null);
-            if(paper != null) {
-                papers.add(paper);
-            }
-            //papers.add(paperRepository.findById(paperAndAuthor.getPaperId()).orElse(null));
-        }
-        return papers;
-    }
+//    public List<Author> getAuthorsForPaper(Long paperId) throws Exception {
+//        List<PaperAndAuthor> paperAndAuthors = paperAndAuthorRepository.findAllByPaperId(paperId);
+//        List<Author> authors = new ArrayList<>();
+//
+//        for(PaperAndAuthor paperAndAuthor : paperAndAuthors) {
+//            Author author = authorRepository.findById(paperAndAuthor.getAuthorId()).orElse(null);
+//            if(author != null) {
+//                authors.add(author);
+//            }
+//            //authors.add(authorRepository.findById(paperAndAuthor.getAuthorId()).orElse(null));
+//        }
+//        return authors;
+//    }
+//    public List<Paper> getPapersForAuthor(Long authorId) throws Exception {
+//        List<PaperAndAuthor> paperAndAuthors = paperAndAuthorRepository.findAllByAuthorId(authorId);
+//        List<Paper> papers = new ArrayList<>();
+//
+//        for(PaperAndAuthor paperAndAuthor : paperAndAuthors) {
+//            Paper paper = paperRepository.findById(paperAndAuthor.getPaperId()).orElse(null);
+//            if(paper != null) {
+//                papers.add(paper);
+//            }
+//            //papers.add(paperRepository.findById(paperAndAuthor.getPaperId()).orElse(null));
+//        }
+//        return papers;
+//    }
 }

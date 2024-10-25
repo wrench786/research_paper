@@ -1,11 +1,10 @@
 create table author (
-    author_id primary key,
+    author_id bigserial primary key,
     bio text,
     institution varchar(100)
 );
--- create sequence author start with 1 increment by 1;
 
-create table if not exists user_table (
+create table user_table (
     user_id bigserial primary key,
     user_name varchar(100) not null,
     full_name varchar(100),

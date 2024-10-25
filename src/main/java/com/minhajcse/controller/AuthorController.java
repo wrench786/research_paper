@@ -1,5 +1,7 @@
 package com.minhajcse.controller;
 
+import com.minhajcse.exception.AuthorNotFoundException;
+import com.minhajcse.exception.UserNotFoundException;
 import com.minhajcse.model.Author;
 import com.minhajcse.model.User;
 import com.minhajcse.service.AuthorService;
@@ -23,47 +25,34 @@ public class AuthorController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getAuthor(@PathVariable Long id) {
-        Author author = authorService.getAuthorById(id);
-        if (author != null) {
+        try{
+            Author author = authorService.getAuthorById(id);
             return ResponseEntity.ok(author);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid User Id");
+        }
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
-//    @PostMapping("/create/{id}")
-//    public ResponseEntity<?> createAuthor(@PathVariable Long id, @RequestBody Author author) {
-//        User user = userService.getUserById(id);
-//        if(user != null) {
-//            try{
-//                Author createdAuthor = authorService.createAuthor(author);
-//                user.setAuthorId(createdAuthor.getAuthorId());
-//                userService.updateUser(user);
-//
-//                return ResponseEntity.status(HttpStatus.CREATED).body(createdAuthor);
-//            }
-//            catch (Exception e) {
-//                return ResponseEntity.status(HttpStatus.CONFLICT).body("Author already exists with this ID");
-//            }
-//        }
-//        else{
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid User Id");
-//        }
-//    }
-
-
     @PostMapping("/create/{id}")
-    public ResponseEntity<?> createAuthor(@PathVariable Long id, @RequestBody Author author) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authorService.createAuthor(author));
+    public ResponseEntity<?> createAuthor(@PathVariable Long id, @RequestBody Author author) throws UserNotFoundException, AuthorNotFoundException {
+        User user = userService.getUserById(id);
+
+        Long authorId = authorService.createAuthor(author);
+        Author createdAuthor = authorService.getAuthorById(authorId);
+        user.setAuthorId(authorId);
+        userService.updateUser(user);
+
+        return ResponseEntity.ok(createdAuthor);
     }
 
+
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateAuthor(@PathVariable Long id, @RequestBody Author author) {
-        Author dummyAuthor = authorService.getAuthorById(id);
-        if(dummyAuthor != null) {
-            author.setAuthorId(id);
-            Author updatedAuthor = authorService.updateAuthor(author);
-            return ResponseEntity.ok(updatedAuthor);
+    public ResponseEntity<?> updateAuthor(@RequestBody Author author) {
+        boolean flag = authorService.existsAuthor(author.getAuthorId());
+        if(flag){
+            authorService.updateAuthor(author);
+            return ResponseEntity.ok(author);
         }
         else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid Author Id");
@@ -72,11 +61,12 @@ public class AuthorController {
 
     @DeleteMapping("delete/{id}")
     public ResponseEntity<String> deleteAuthor(@PathVariable Long id) {
-        try {
+        boolean flag = authorService.existsAuthor(id);
+        if(flag){
             authorService.deleteAuthor(id);
-            return ResponseEntity.status(HttpStatus.OK).body("Author deleted Successfully");
+            return ResponseEntity.ok("Deleted Author");
         }
-        catch (Exception e) {
+        else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid Author Id");
         }
     }
