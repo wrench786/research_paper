@@ -1,6 +1,8 @@
 package com.minhajcse.controller;
 
 import com.minhajcse.model.Paper;
+import com.minhajcse.repository.PaperAndAuthorRepository;
+import com.minhajcse.service.PaperAndAuthorService;
 import com.minhajcse.service.PaperService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +15,10 @@ import java.util.List;
 
 public class PaperController {
     private final PaperService paperService;
-    public PaperController(PaperService paperService) {
+    private final PaperAndAuthorService paperAndAuthorService;
+    public PaperController(PaperService paperService, PaperAndAuthorService paperAndAuthorService) {
         this.paperService = paperService;
+        this.paperAndAuthorService = paperAndAuthorService;
     }
 
     @GetMapping("/{id}")
@@ -27,9 +31,17 @@ public class PaperController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<Paper> createPaper(@RequestBody Paper paper) {
+    @PostMapping("/create")
+    public ResponseEntity<Paper> createPaper(@RequestBody Paper paper, List<Long> authorList) {
         Paper createdPaper = paperService.createPaper(paper);
+        for(Long authorId: authorList){
+            try {
+                paperAndAuthorService.addAuthorToPaper(paper.getPaperId(), authorId);
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPaper);
     }
 
@@ -46,7 +58,7 @@ public class PaperController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
+    @GetMapping("/getAll")
     public ResponseEntity<List<Paper>> getAllPapers() {
         return ResponseEntity.ok(paperService.getAllPapers());
     }
