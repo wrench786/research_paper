@@ -2,7 +2,7 @@ spring:
   application:
     name: research_paper
   datasource:
-    url: jdbc:postgresql://localhost:5432/research_paper
+    url: jdbc:postgresql://localhost:5432/research_paper_db
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver

@@ -1,21 +1,22 @@
-create table Author (
-    author_id serial primary key,
+create table author (
+    author_id primary key,
     bio text,
     institution varchar(100)
 );
+-- create sequence author start with 1 increment by 1;
 
-create table "User" (
+create table if not exists user_table (
     user_id bigserial primary key,
-    username varchar(100) not null,
+    user_name varchar(100) not null,
     full_name varchar(100),
     email varchar(100),
     password varchar(100),
     age int,
     author_id int,
-    foreign key (author_id) references Author(author_id)
+    foreign key (author_id) references author(author_id)
 );
 
-create table Paper (
+create table paper (
     paper_id bigserial primary key,
     title varchar(255),
     abstract_of_paper text,
@@ -24,27 +25,27 @@ create table Paper (
     file_url varchar(255)
 );
 
-create table PaperAndAuthor (
+create table paper_and_author (
     mapping_id bigserial primary key,
     paper_id int,
     author_id int,
-    foreign key (paper_id) references Paper(paper_id),
-    foreign key (author_id) references Author(author_id)
+    foreign key (paper_id) references paper(paper_id),
+    foreign key (author_id) references author(author_id)
 );
-create table Decision (
+create table decision (
     decision_id bigserial primary key,
     decision varchar(100)
 );
 
-create table Review (
+create table review (
     review_id bigserial primary key,
     paper_id int,
     reviewer_id int,
     comments text,
     review_date date,
     decision_id int,
-    foreign key (paper_id) references Paper(paper_id),
-    foreign key (reviewer_id) references "User"(user_id),
-    foreign key (decision_id) references Decision(decision_id)
+    foreign key (paper_id) references paper(paper_id),
+    foreign key (reviewer_id) references user_table(user_id),
+    foreign key (decision_id) references decision(decision_id)
 );
 

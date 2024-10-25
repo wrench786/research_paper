@@ -1,5 +1,6 @@
 package com.minhajcse.controller;
 
+import com.minhajcse.dto.PaperDTO;
 import com.minhajcse.model.Paper;
 import com.minhajcse.repository.PaperAndAuthorRepository;
 import com.minhajcse.service.PaperAndAuthorService;
@@ -11,8 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/papers")
-
+@RequestMapping("/paper")
 public class PaperController {
     private final PaperService paperService;
     private final PaperAndAuthorService paperAndAuthorService;
@@ -32,8 +32,11 @@ public class PaperController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Paper> createPaper(@RequestBody Paper paper, List<Long> authorList) {
+    public ResponseEntity<Paper> createPaper(@RequestBody PaperDTO paperDTO) {
+        Paper paper = paperDTO.getPaper();
         Paper createdPaper = paperService.createPaper(paper);
+
+        List<Long> authorList = paperDTO.getAuthorList();
         for(Long authorId: authorList){
             try {
                 paperAndAuthorService.addAuthorToPaper(paper.getPaperId(), authorId);
@@ -45,14 +48,14 @@ public class PaperController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPaper);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<Paper> updatePaper(@PathVariable Long id, @RequestBody Paper paper) {
         paper.setPaperId(id);
         Paper updatedPaper = paperService.updatePaper(paper);
         return ResponseEntity.ok(updatedPaper);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deletePaper(@PathVariable Long id) {
         paperService.deletePaper(id);
         return ResponseEntity.noContent().build();
