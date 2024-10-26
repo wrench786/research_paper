@@ -23,9 +23,14 @@ public class PaperController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Paper> getPaper(@PathVariable Long id) throws PaperNotFoundException {
-        Paper paper = paperService.getPaperById(id);
-        return ResponseEntity.ok(paper);
+    public ResponseEntity<?> getPaper(@PathVariable Long id) {
+        try{
+            Paper paper = paperService.getPaperById(id);
+            return ResponseEntity.ok(paper);
+        }
+        catch (PaperNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @PostMapping("/create")
